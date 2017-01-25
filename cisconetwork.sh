@@ -131,12 +131,16 @@ fi
 
 # Do we have a VPN up?
 # This is basic but fairly reliable.
-# Could also test netstat -nr for utunX interfaces
-# Known issue: Coming out of sleep OSX *sometimes* has a lingering utun0 but
-# the VPN is no longer up so we will show the wrong state
 VPN=''
 if ifconfig utun0 >/dev/null 2>&1; then
-    VPN='<vpn> '
+    # Coming out of sleep OSX *sometimes* has a lingering utun0 but the VPN is
+    # no longer up.
+    # we can detect this if the default gateway isn't using the tunnel
+    if netstat -nr|grep default|grep utun0 >/dev/null 2>&1; then
+        VPN='<vpn> '
+    else
+        VPN='<vpn?> '
+    fi
 fi
 
 # Test connectivity. Thanks Microsoft! Thicrosoft.
